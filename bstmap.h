@@ -1,39 +1,39 @@
 //---------------------------------------------------------------------------
 // NAME: Connor Goldschmidt
-// FILE: avlmap.h
+// FILE: bstmap.h
 // DATE: Spring 2022
-// DESC: Impliments the AVLMap for the Map interface.
+// DESC: Binary Search Tree implimentation of the map interface.
 //---------------------------------------------------------------------------
 
-#ifndef AVLMAP_H
-#define AVLMAP_H
+#ifndef BSTMAP_H
+#define BSTMAP_H
 
 #include "map.h"
 #include "arrayseq.h"
 
 
 template<typename K, typename V>
-class AVLMap : public Map<K,V>
+class BSTMap : public Map<K,V>
 {
 public:
 
   // default constructor
-  AVLMap();
+  BSTMap();
 
   // copy constructor
-  AVLMap(const AVLMap& rhs);
+  BSTMap(const BSTMap& rhs);
 
   // move constructor
-  AVLMap(AVLMap&& rhs);
+  BSTMap(BSTMap&& rhs);
 
   // copy assignment
-  AVLMap& operator=(const AVLMap& rhs);
+  BSTMap& operator=(const BSTMap& rhs);
 
   // move assignment
-  AVLMap& operator=(AVLMap&& rhs);  
+  BSTMap& operator=(BSTMap&& rhs);  
 
   // destructor
-  ~AVLMap();
+  ~BSTMap();
   
   // Returns the number of key-value pairs in the map
   int size() const;
@@ -83,17 +83,13 @@ public:
 
   // Returns the height of the binary search tree
   int height() const;
-
-  // helper to print the tree for debugging
-  void print() const;
-
+  
 private:
 
   // node for linked-list separate chaining
   struct Node {
     K key;
     V value;
-    int height;
     Node* left;
     Node* right;
   };
@@ -109,9 +105,6 @@ private:
 
   // copy assignment helper
   Node* copy(const Node* rhs_st_root) const;
-
-  // insert helper
-  Node* insert(const K& key, const V& value, Node* st_root);
   
   // erase helper
   Node* erase(const K& key, Node* st_root);
@@ -123,63 +116,39 @@ private:
   // sorted_keys helper
   void sorted_keys(const Node* st_root, ArraySeq<K>& keys) const;
 
-  // rotations
-  Node* rotate_right(Node* k2);
-  Node* rotate_left(Node* k2);
-
-  // rebalance
-  Node* rebalance(Node* st_root);
-
-  // print helper
-  void print(std::string indent, const Node* st_root) const;
+  // height helper
+  int height(const Node* st_root) const;
+  
 };
 
 
 template<typename K, typename V>
-void AVLMap<K,V>::print() const
-{
-  print(std::string(""), root);
-}
-
-
-template<typename K, typename V>
-void AVLMap<K,V>::print(std::string indent, const Node* st_root) const
-{
-  if (!st_root)
-    return;
-  std::cout << st_root->key << " (" << st_root->height << ")" <<  std::endl;
-  if (st_root->left) {
-    std::cout << indent << " lft: ";
-    print(indent + " ", st_root->left);
-  }
-  if (st_root->right) {
-    std::cout << indent << " rgt: ";
-    print(indent + " ", st_root->right);
-  }
-}
-
-template<typename K, typename V>
-AVLMap<K,V>::AVLMap()
+BSTMap<K,V>::BSTMap()
 {
 }
+
+// TODO: Implement the BST Map functions below. Note that you are not
+// allowed to add any additional helper functions and must implement
+// the functions as per the guidelines in the homework and lecture
+// notes.
 
 //initalizes the copy constructor
 template<typename K, typename V>
-AVLMap<K,V>::AVLMap(const AVLMap& rhs)
+BSTMap<K,V>::BSTMap(const BSTMap& rhs)
 {
   *this = rhs;
 }
 
 //initalizes the move constructor
 template<typename K, typename V>
-AVLMap<K,V>::AVLMap(AVLMap&& rhs)
+BSTMap<K,V>::BSTMap(BSTMap&& rhs)
 {
   *this = std::move(rhs);
 }
 
 //initalizes the copy assignment
 template<typename K, typename V>
-AVLMap<K, V>& AVLMap<K, V>::operator=(const AVLMap& rhs)
+BSTMap<K, V>& BSTMap<K, V>::operator=(const BSTMap& rhs)
 {
   if(this != &rhs){
     clear();
@@ -191,7 +160,7 @@ AVLMap<K, V>& AVLMap<K, V>::operator=(const AVLMap& rhs)
 
 //initalizes the move assignment
 template<typename K, typename V>
-AVLMap<K, V>& AVLMap<K, V>::operator=(AVLMap&& rhs)
+BSTMap<K, V>& BSTMap<K, V>::operator=(BSTMap&& rhs)
 {
   if(this != &rhs){
     clear();
@@ -205,21 +174,21 @@ AVLMap<K, V>& AVLMap<K, V>::operator=(AVLMap&& rhs)
 
 //initalizes the destructor
 template<typename K, typename V>
-AVLMap<K, V>::~AVLMap()
+BSTMap<K, V>::~BSTMap()
 {
   clear();
 }
 
 //returns the number of nodes stored in the tree
 template<typename K, typename V>
-int AVLMap<K, V>::size() const
+int BSTMap<K, V>::size() const
 {
   return count; 
 }
 
 //returns true if the tree is empty, false if not
 template<typename K, typename V>
-bool AVLMap<K, V>::empty() const
+bool BSTMap<K, V>::empty() const
 {
   if(count == 0){
     return true;
@@ -230,7 +199,7 @@ bool AVLMap<K, V>::empty() const
 //given a valid key, returns the corrisponding key value
 //throws an out_of_range exception if key is invalid
 template<typename K, typename V>
-V& AVLMap<K, V>::operator[](const K& key)
+V& BSTMap<K, V>::operator[](const K& key)
 {
   Node* temp = root;
   while(temp){
@@ -249,7 +218,7 @@ V& AVLMap<K, V>::operator[](const K& key)
 //given a valid key, returns the corrisponding key value as a constant
 //throws an out_of_range exception if key is invalid
 template<typename K, typename V>
-const V& AVLMap<K, V>::operator[](const K& key) const
+const V& BSTMap<K, V>::operator[](const K& key) const
 {
   Node* temp = root;
   while(temp){
@@ -267,15 +236,38 @@ const V& AVLMap<K, V>::operator[](const K& key) const
 
 //inserts the given key, value pair into a leaf node in the tree
 template<typename K, typename V>
-void AVLMap<K, V>::insert(const K& key, const V& value)
+void BSTMap<K, V>::insert(const K& key, const V& value)
 {
-  root = insert(key, value, root);
+  Node* new_node = new Node;
+  new_node -> key = key;
+  new_node -> value = value;
+  new_node -> left = nullptr;
+  new_node -> right = nullptr;
+  if(empty()){
+    root = new_node;
+  } else {
+    Node* temp = root;
+    Node* parent;
+    while(temp){
+      parent = temp;
+      if(key < temp -> key){
+        temp = temp -> left;
+      } else {
+        temp = temp -> right;
+      }
+    }
+    if(key < parent -> key){
+      parent -> left = new_node;
+    } else {
+      parent -> right = new_node;
+    }
+  }
   count++;
 }
 
 //removes the given key and corrisponding value pair from the tree
 template<typename K, typename V>
-void AVLMap<K, V>::erase(const K& key)
+void BSTMap<K, V>::erase(const K& key)
 {
   if(empty() || !contains(key)){
     throw std::out_of_range("Out of Range in Erase");
@@ -286,7 +278,7 @@ void AVLMap<K, V>::erase(const K& key)
 
 //returns true if given key is in the tree, false if not
 template<typename K, typename V>
-bool AVLMap<K, V>::contains(const K& key) const
+bool BSTMap<K, V>::contains(const K& key) const
 {
   Node* temp = root;
   while(temp){
@@ -304,7 +296,7 @@ bool AVLMap<K, V>::contains(const K& key) const
 
 //returns an ArraySeq of key values that are between k1 and k2
 template<typename K, typename V>
-ArraySeq<K> AVLMap<K, V>::find_keys(const K& k1, const K& k2) const
+ArraySeq<K> BSTMap<K, V>::find_keys(const K& k1, const K& k2) const
 {
   ArraySeq<K> keys;
   find_keys(k1, k2, root, keys);
@@ -313,7 +305,7 @@ ArraySeq<K> AVLMap<K, V>::find_keys(const K& k1, const K& k2) const
 
 //returns an array seq of all of the keys in sorted order
 template<typename K, typename V>
-ArraySeq<K> AVLMap<K, V>::sorted_keys() const
+ArraySeq<K> BSTMap<K, V>::sorted_keys() const
 {
   ArraySeq<K> keys;
   sorted_keys(root, keys);
@@ -322,7 +314,7 @@ ArraySeq<K> AVLMap<K, V>::sorted_keys() const
 
 //returns the next key value in the tree
 template<typename K, typename V>
-bool AVLMap<K, V>::next_key(const K& key, K& next_key) const
+bool BSTMap<K, V>::next_key(const K& key, K& next_key) const
 {
   Node* temp = root;
   K temp_next_key = key;
@@ -346,7 +338,7 @@ bool AVLMap<K, V>::next_key(const K& key, K& next_key) const
 
 //returns the previous key value in the tree
 template<typename K, typename V>
-bool AVLMap<K, V>::prev_key(const K& key, K& prev_key) const
+bool BSTMap<K, V>::prev_key(const K& key, K& prev_key) const
 {
   Node* temp = root;
   K temp_prev_key = key;
@@ -370,7 +362,7 @@ bool AVLMap<K, V>::prev_key(const K& key, K& prev_key) const
 
 //deletes all of the values in the tree
 template<typename K, typename V>
-void AVLMap<K, V>::clear()
+void BSTMap<K, V>::clear()
 {
   clear(root);
   count = 0;
@@ -379,17 +371,14 @@ void AVLMap<K, V>::clear()
 
 //returns the largest root to leaf path in the tree
 template<typename K, typename V>
-int AVLMap<K, V>::height() const
+int BSTMap<K, V>::height() const
 {
-  if(!root){
-    return 0;
-  }
-  return root -> height;
+  return height(root);
 }
 
 //helper function for the clear method
 template<typename K, typename V>
-void AVLMap<K, V>::clear(Node* st_root)
+void BSTMap<K, V>::clear(Node* st_root)
 {
   if(!st_root){
     return;
@@ -399,122 +388,25 @@ void AVLMap<K, V>::clear(Node* st_root)
   delete st_root;
 }
 
-//Helper function for the insert method
+//returns the root of the copied tree
 template<typename K, typename V>
-typename AVLMap<K,V>::Node* AVLMap<K,V>::insert(const K& key, const V& value, Node* st_root)
+typename BSTMap<K,V>::Node* BSTMap<K, V>::copy(const Node* rhs_st_root) const
 {
-  if(st_root == nullptr){
+  if(!rhs_st_root){
+    return nullptr;
+  } else {
     Node* new_node = new Node;
-    new_node -> key = key;
-    new_node -> value = value;
-    new_node -> height = 1;
-    new_node -> left = nullptr;
-    new_node -> right = nullptr;
-    st_root = new_node;
-  } else { 
-    if(key < st_root -> key){
-      st_root -> left = insert(key, value, st_root -> left);
-    } else {
-      st_root -> right = insert(key, value, st_root -> right);
-    }
-    if(st_root -> left && st_root -> right){
-      st_root -> height = std::max(st_root -> left -> height, st_root -> right -> height) + 1;
-    } else if(st_root -> left){
-      st_root -> height = st_root -> left -> height + 1;
-    } else {
-      st_root -> height = st_root -> right -> height + 1;
-    } 
-    st_root = rebalance(st_root);
+    new_node -> key = rhs_st_root -> key;
+    new_node -> value = rhs_st_root -> value;
+    new_node -> left = copy(rhs_st_root -> left);
+    new_node -> right = copy(rhs_st_root -> right);
+    return new_node;
   }
-  return st_root;
 }
 
-//Rotates the given node to the right
+//helper function for the erase method
 template<typename K, typename V>
-typename AVLMap<K,V>::Node* AVLMap<K,V>::rotate_right(Node* k2)
-{
-  Node* k1 = k2 -> left;
-	k2 -> left = k1 -> right;
-	k1 -> right = k2;
-	return k1;
-}
-
-//Rotates the given node to the left
-template<typename K, typename V>
-typename AVLMap<K,V>::Node* AVLMap<K,V>::rotate_left(Node* k2)
-{
-  Node* k1 = k2 -> right;
-	k2 -> right = k1 -> left;
-	k1 -> left = k2;
-	return k1;
-}
-
-//Balances the given node to a balance factor that is greater than -1 and less than 1
-//then updates the height of the nodes
-template<typename K, typename V>
-typename AVLMap<K,V>::Node* AVLMap<K,V>::rebalance(Node* st_root)
-{
-  Node* left_child = st_root -> left;
-  Node* right_child = st_root -> right;
-  if(left_child && !right_child && left_child -> height > 1){
-    if(left_child -> right){
-      st_root -> left = rotate_left(left_child);
-    }
-    st_root = rotate_right(st_root);
-  } else if(!left_child && right_child && right_child -> height > 1){
-    if(right_child -> left){
-        st_root -> right = rotate_right(right_child);
-      }
-    st_root = rotate_left(st_root);
-  } else if(left_child && right_child){
-    int balance_factor = left_child -> height - right_child -> height;
-    if(balance_factor > 1){
-      if(left_child -> right && (!left_child -> left || left_child -> left -> height < left_child -> right -> height)){
-        st_root -> left = rotate_left(left_child);
-      } 
-      st_root = rotate_right(st_root);
-    } else if(balance_factor < -1){
-      if(right_child -> left && (!right_child -> right || right_child -> left -> height > right_child -> right -> height)){
-        st_root -> right = rotate_right(right_child);
-      }
-      st_root = rotate_left(st_root);
-    }
-  }
-  if(st_root -> left){
-    if(st_root -> left -> right && st_root -> left -> left){
-      st_root -> left -> height = std::max(st_root -> left -> left -> height, st_root -> left -> right -> height) + 1;
-    } else if(st_root -> left -> right){
-      st_root -> left -> height = st_root -> left -> right -> height + 1;
-    } else if(st_root -> left -> left){
-      st_root -> left -> height = st_root -> left -> left -> height + 1;
-    } else {
-      st_root -> left -> height = 1;
-    }
-  }
-  if(st_root -> right){
-    if(st_root -> right -> right && st_root -> right -> left){
-      st_root -> right -> height = std::max(st_root -> right -> left -> height, st_root -> right -> right -> height) + 1;
-    } else if(st_root -> right -> right){
-      st_root -> right -> height = st_root -> right -> right -> height + 1;
-    } else if(st_root -> right -> left){
-      st_root -> right -> height = st_root -> right -> left -> height + 1;
-    } else {
-      st_root -> right -> height = 1;
-    }
-  }
-  if(st_root -> left && st_root -> right){
-    st_root -> height = std::max(st_root -> left -> height, st_root -> right -> height) + 1;
-  }else if(st_root -> left){
-    st_root -> height = st_root -> left -> height + 1;
-  } else if(st_root -> right){
-    st_root -> height = st_root -> right -> height + 1;
-  } 
-  return st_root;
-}
-
-//Helper function for the erase method
-template<typename K, typename V>
-typename AVLMap<K,V>::Node* AVLMap<K,V>::erase(const K& key, Node* st_root)
+typename BSTMap<K,V>::Node* BSTMap<K, V>::erase(const K& key, Node* st_root)
 {
   if(!st_root){
     return nullptr;
@@ -545,40 +437,12 @@ typename AVLMap<K,V>::Node* AVLMap<K,V>::erase(const K& key, Node* st_root)
       st_root -> right = erase(temp -> key, st_root -> right);
     }
   }
-  if(st_root){
-    if(st_root -> left && st_root -> right){
-      st_root -> height = std::max(st_root -> left -> height, st_root -> right -> height) + 1;
-    } else if(st_root -> left){
-      st_root -> height = st_root -> left -> height + 1;
-    } else if(st_root -> right){
-      st_root -> height = st_root -> right -> height + 1;
-    } else {
-      st_root -> height = 1;
-    }
-    st_root = rebalance(st_root);
-  } 
   return st_root;
-}
-
-//returns the root of the copied tree
-template<typename K, typename V>
-typename AVLMap<K,V>::Node* AVLMap<K, V>::copy(const Node* rhs_st_root) const
-{
-  if(!rhs_st_root){
-    return nullptr;
-  } else {
-    Node* new_node = new Node;
-    new_node -> key = rhs_st_root -> key;
-    new_node -> value = rhs_st_root -> value;
-    new_node -> left = copy(rhs_st_root -> left);
-    new_node -> right = copy(rhs_st_root -> right);
-    return new_node;
-  }
 }
 
 //helper function for the find_keys method
 template<typename K, typename V>
-void AVLMap<K, V>::find_keys(const K& k1, const K& k2, const Node* st_root, ArraySeq<K>& keys) const
+void BSTMap<K, V>::find_keys(const K& k1, const K& k2, const Node* st_root, ArraySeq<K>& keys) const
 {
   if(st_root){
     if(k1 <= st_root -> key){
@@ -595,13 +459,28 @@ void AVLMap<K, V>::find_keys(const K& k1, const K& k2, const Node* st_root, Arra
 
 //helper function for the sorted_keys method
 template<typename K, typename V>
-void AVLMap<K, V>::sorted_keys(const Node* st_root, ArraySeq<K>& keys) const
+void BSTMap<K, V>::sorted_keys(const Node* st_root, ArraySeq<K>& keys) const
 {
   if(st_root){
     sorted_keys(st_root -> left, keys);
     keys.insert(st_root -> key, keys.size());
     sorted_keys(st_root -> right, keys);
   }
+}
+
+//helper function for the height method
+template<typename K, typename V>
+int BSTMap<K, V>::height(const Node* st_root) const
+{
+  if(!st_root){
+    return 0;
+  }
+  int count_left = height(st_root -> left);
+  int count_right = height(st_root -> right);
+  if(count_left > count_right){
+    return 1 + count_left;
+  }
+  return 1 + count_right;
 }
 
 #endif
